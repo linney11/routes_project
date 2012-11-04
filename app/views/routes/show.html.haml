@@ -1,0 +1,18 @@
+%header
+ %h1.title Show Route
+ %li
+  %img(src="../assets/images/logo1.png")
+
+%section
+ %p=@id.name
+ %p= link_to 'Back to routes list', routes_path
+
+ .map
+  %div#map
+  %input#gps{:type => "hidden", :value => @gps.to_json}
+
+= javascript_include_tag '/assets/maps/OpenLayers'
+= javascript_include_tag '/assets/maps/locations'
+:javascript
+  initMap($("#gps").val());
+

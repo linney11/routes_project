@@ -1,0 +1,23 @@
+= javascript_include_tag '/assets/maps/OpenLayers'
+= javascript_include_tag '/assets/maps/locations'
+
+%header
+ %h1.title All Routes
+ %li
+  %img(src="../assets/images/logo1.png")
+
+
+
+%table#table
+ %thead
+  %tr
+   %th Routes
+   %th
+ %tbody
+  - @routes.each do |route|
+   %tr
+    %td= link_to route.name, route_path(route.id)
+    %td= route.description
+
+%p=link_to "Upload Route", routes_upload_path
+
