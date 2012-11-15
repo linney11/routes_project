@@ -131,6 +131,9 @@ class RoutesController < ApplicationController
                 end
               end
             end
+
+        #Falta realizar el match entre las NFCs y las coordenadas, así como asignarle a cada NFC su
+        #survey para mostrarse en el globito del mapa. 
       end
 
     end
