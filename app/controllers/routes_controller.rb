@@ -70,7 +70,9 @@ class RoutesController < ApplicationController
             #   la base de datos y se asociarán a la Ruta creada
             #   Se hara esto por cada Inicio y Fin Encontrado
 
-            @x=[]
+        @hola=[]
+
+        @x=[]
             timeInicio=[]
             timeFinal=[]
             flag=true
@@ -113,6 +115,7 @@ class RoutesController < ApplicationController
 
                 @rotue = Route.find_by_name(name)
 
+
                 #Obtener el id de la ruta y buscar los gps que corresponden
                 @GPS.each do |gps|
                  # Se resta 86400000 lo equivalente a un día en milisegundos por que los archivos estan
@@ -129,13 +132,72 @@ class RoutesController < ApplicationController
                    end
                   end
                 end
+
+                #Falta realizar el match entre las NFCs y las coordenadas, así como asignarle a cada NFC su
+                #survey para mostrarse en el globito del mapa.
+
+                #Obtener todos los gps de la ruta creada
+                gpsRuta = GpsSample.find_all_by_route_id(@route)
+                error = 60000 #milisegundos que se van a dar como máximo de diferencia para asignar un nfc a un gps
+                act = 0 #apuntador actual del gps (para recorrerlo del último que encontro en adelante)
+
+
+                @NFC.each do |nfc|
+                  #El primer Nfc Inicio se asigna al primer gps
+                  if nfc["timestamp"]==inicio
+                    @nfcRuta = NfcSample.new("message"=>nfc["message"],
+                                             "timestamp"=>nfc["timestamp"],
+                                             "gps_id"=>gpsRuta[0].id)
+
+                    @nfcRuta.save!
+                  else
+                    #si el Nfc es mayor a inicio y menor a final, se buscará el gps con menor diferencia
+                    if nfc["timestamp"]>inicio && nfc["timestamp"]<timeFinal[idx]
+                      #al gps se le resta un día en por el desfase de tiempos
+                      dif = gpsRuta[act].timestamp.to_i-86400000-nfc["timestamp"]   #Calcula la diferencia, se le resta un día
+                      min = dif   #diferencia minima
+                      j = act #apuntador para buscar el menor
+
+                      while error > dif && !gpsRuta[j+1].nil?   #mientras que el error sea mayor al a diferencia o se termine de recorrer el arreglo
+                          if dif.abs < min.abs #si la diferencia es menor al mínimo entonces hay un nuevo mínimo
+                            min = dif
+                            act = j
+                          end
+                        j=j+1   #incremento el apuntador
+                        dif=gpsRuta[j].timestamp.to_i-86400000-nfc["timestamp"]   #calculo la nueva diferencia
+                      end
+
+                      if error > min.abs   #si el error es mayor al mínimo entonces guardo el nfc con el id de la ruta actual
+                        @nfcRuta = NfcSample.new("message"=>nfc["message"],
+                                                 "timestamp"=>nfc["timestamp"],
+                                                 "gps_id"=>gpsRuta[act].id)
+                        @nfcRuta.save!
+                      end
+
+                    else
+                      #si el NFC es igual a fin se asigna al último gps
+                      if  nfc["timestamp"]==timeFinal[idx]
+                        @nfcRuta = NfcSample.new("message"=>nfc["message"],
+                                                 "timestamp"=>nfc["timestamp"],
+                                                 "gps_id"=>gpsRuta[gpsRuta.length-1].id)
+                        @nfcRuta.save!
+                      end
+
+                    end
+                  end
+                end
+
+
+
+              #Hacer el match de las surveys con el nfc
+
+
+
               end
+
             end
 
-        #Falta realizar el match entre las NFCs y las coordenadas, así como asignarle a cada NFC su
-        #survey para mostrarse en el globito del mapa. 
       end
-
     end
 
     @routes=Route.all
