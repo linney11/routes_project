@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c3728168-1711-4359-8710-95148b13d53a" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dataSources.ids" afterPath="$PROJECT_DIR$/.idea/dataSources.ids" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/routes_project.iml" afterPath="$PROJECT_DIR$/.idea/routes_project.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dataSources.xml" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="routes_project.iws" />
@@ -50,7 +48,7 @@
       <file leaf-file-name="routes_controller.rb" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/controllers/routes_controller.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="121" column="16" selection-start="4410" selection-end="4410" vertical-scroll-proportion="0.6688963">
+            <state line="130" column="18" selection-start="4792" selection-end="4792" vertical-scroll-proportion="0.67066896">
               <folding />
             </state>
           </provider>
@@ -122,7 +120,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="RailsProjectView" />
       <pane id="ProjectPane">
         <subPane>
@@ -346,6 +343,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -541,13 +539,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32894737" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20559211" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="true" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19924243" sideWeight="0.5542763" order="3" side_tool="false" content_ui="tabs" x="918" y="152" width="263" height="608" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.19924243" sideWeight="0.5542763" order="3" side_tool="false" content_ui="tabs" x="918" y="152" width="263" height="608" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2090909" sideWeight="0.21710527" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2219697" sideWeight="0.5542763" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22954546" sideWeight="0.5542763" order="0" side_tool="false" content_ui="combo" />
       <window_info id="DB Browser" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2090909" sideWeight="0.21710527" order="2" side_tool="true" content_ui="tabs" />
@@ -618,16 +616,6 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/db/development.sqlite3">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/db/production.sqlite3">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="uml://RailsDependency/#routes_project">
       <provider selected="true" editor-type-id="UmlEditorProvider">
         <state>
@@ -701,11 +689,6 @@
         <state line="274" column="14" selection-start="8144" selection-end="8144" vertical-scroll-proportion="0.030909091" />
       </provider>
     </entry>
-    <entry file="file://C:/Ruby193/lib/ruby/1.9.1/webrick/server.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="81" column="0" selection-start="1958" selection-end="1958" vertical-scroll-proportion="0.030195381" />
-      </provider>
-    </entry>
     <entry file="file://C:/Ruby193/lib/ruby/1.9.1/webrick/utils.rb">
       <provider selected="true" editor-type-id="text-editor">
         <state line="84" column="0" selection-start="2243" selection-end="2243" vertical-scroll-proportion="0.030195381" />
@@ -746,9 +729,30 @@
         <state />
       </provider>
     </entry>
+    <entry file="file://C:/Ruby193/lib/ruby/1.9.1/webrick/httpresponse.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="248" column="0" selection-start="5923" selection-end="5923" vertical-scroll-proportion="0.33110368">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Ruby193/lib/ruby/1.9.1/webrick/server.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="190" column="0" selection-start="5127" selection-end="5127" vertical-scroll-proportion="0.33333334">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Ruby193/lib/ruby/gems/1.9.1/gems/actionpack-3.2.8/lib/action_dispatch/middleware/templates/rescues/routing_error.erb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/controllers/routes_controller.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="121" column="16" selection-start="4410" selection-end="4410" vertical-scroll-proportion="0.6688963">
+        <state line="130" column="18" selection-start="4792" selection-end="4792" vertical-scroll-proportion="0.67066896">
           <folding />
         </state>
       </provider>
