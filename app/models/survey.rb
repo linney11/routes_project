@@ -1,3 +1,4 @@
 class Survey < ActiveRecord::Base
-  attr_accessible :answer, :timestamp, :nfc_id
+  belongs_to :nfc_sample
+  attr_accessible :answer, :timestamp, :nfc_sample_id
 end

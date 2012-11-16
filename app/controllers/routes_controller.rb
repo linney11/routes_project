@@ -113,7 +113,7 @@ class RoutesController < ApplicationController
                 @route = Route.new("name"=>name)
                 @route.save!
 
-                @rotue = Route.find_by_name(name)
+                @route = Route.find_by_name(name)
 
 
                 #Obtener el id de la ruta y buscar los gps que corresponden
@@ -147,7 +147,7 @@ class RoutesController < ApplicationController
                   if nfc["timestamp"]==inicio
                     @nfcRuta = NfcSample.new("message"=>nfc["message"],
                                              "timestamp"=>nfc["timestamp"],
-                                             "gps_id"=>gpsRuta[0].id)
+                                             "gps_sample_id"=>gpsRuta[0].id)
 
                     @nfcRuta.save!
                   else
@@ -170,7 +170,7 @@ class RoutesController < ApplicationController
                       if error > min.abs   #si el error es mayor al mínimo entonces guardo el nfc con el id de la ruta actual
                         @nfcRuta = NfcSample.new("message"=>nfc["message"],
                                                  "timestamp"=>nfc["timestamp"],
-                                                 "gps_id"=>gpsRuta[act].id)
+                                                 "gps_sample_id"=>gpsRuta[act].id)
                         @nfcRuta.save!
                       end
 
@@ -179,7 +179,7 @@ class RoutesController < ApplicationController
                       if  nfc["timestamp"]==timeFinal[idx]
                         @nfcRuta = NfcSample.new("message"=>nfc["message"],
                                                  "timestamp"=>nfc["timestamp"],
-                                                 "gps_id"=>gpsRuta[gpsRuta.length-1].id)
+                                                 "gps_sample_id"=>gpsRuta[gpsRuta.length-1].id)
                         @nfcRuta.save!
                       end
 
@@ -188,8 +188,56 @@ class RoutesController < ApplicationController
                 end
 
 
-
               #Hacer el match de las surveys con el nfc
+              # @NfcRoute = NfcSample.all
+              #@NfcRoute = NfcSample.joins(:gps_sample, :route)
+
+                #@NfcRoute = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {'gps_sample.route_id' => '@route.id'}
+
+                @NfcRoute = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => @route.id}}
+
+ #               @nfcR = NfcSample.find_by_sql("SELECT *
+ #FROM gps_samples INNER JOIN routes
+ #  ON gps_samples.route_id = routes.id Inner JOIN nfc_samples
+ #  ON nfc_samples.gps_id=gps_samples.id
+ #WHERE routes.id='"+@route.id.to_s+"'")
+
+
+
+               #@NfcRoute = NfcSample.find_by_sql("SELECT * FROM nfc_samples INNER JOIN gps_samples ON nfc_samples.gps_id = gps_samples.id INNER JOIN routes ON gps_samples.route_id = '" + @route.id.to_s + "'")
+               # @NfcRoute = NfcSample.find_by_sql("SELECT * FROM nfc_samples INNER JOIN gps_samples ON nfc_samples.gps_id = gps_samples.id INNER JOIN routes ON gps_samples.route_id = routes.id")
+                #'" + tuVariable + "'"
+                #SELECT posts.* FROM posts
+                #INNER JOIN categories ON posts.category_id = categories.id
+                #INNER JOIN comments ON comments.post_id = posts.id
+
+                ap=0 # Apuntador para recorrer el archivo de NFC.
+
+                @S.each do |survey|
+                  if survey["timestamp"].to_i > inicio && survey["timestamp"].to_i < timeFinal[idx]+60000
+                    while !@NfcRoute[ap].nil?
+                    dif = survey["timestamp"].to_i - @NfcRoute[ap].timestamp.to_i  #Calcula la diferencia
+                    #min = dif   #diferencia minima
+                    #j = ap #apuntador para buscar el menor
+                    #while error > dif && !gpsRuta[j+1].nil?   #mientras que el error sea mayor al a diferencia o se termine de recorrer el arreglo
+                    #  if dif.abs < min.abs #si la diferencia es menor al mínimo entonces hay un nuevo mínimo
+                    #    min = dif
+                    #    act = j
+                    #  end
+                    #  j=j+1   #incremento el apuntador
+                    #  dif=gpsRuta[j].timestamp.to_i-86400000-nfc["timestamp"]   #calculo la nueva diferencia
+                    #end
+                    #
+                    if error > dif  && dif > -1 #si el error es mayor al la diferencia y es positivo entonces guardo el nfc con el id de la ruta actual
+                      @surveyRoute = Survey.new("answer"=>survey["answer"],
+                                               "timestamp"=>survey["timestamp"],
+                                               "nfc_sample_id"=>@NfcRoute[ap].id)
+                      @surveyRoute.save!
+                    end
+                    ap=ap+1
+                    end
+                  end
+                end
 
 
 

@@ -3,7 +3,7 @@ class CreateSurveys < ActiveRecord::Migration
     create_table 'surveys' do |t|
       t.string 'answer'
       t.integer 'timestamp',:null => false, :limit => 8
-      t.integer 'nfc_id'
+      t.integer 'nfc_sample_id'
     end
   end
 

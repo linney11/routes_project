@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121101014236) do
+ActiveRecord::Schema.define(:version => 20121101010527) do
 
   create_table "gps_samples", :force => true do |t|
     t.float   "latitude",  :limit => 53, :null => false
@@ -22,8 +22,8 @@ ActiveRecord::Schema.define(:version => 20121101014236) do
 
   create_table "nfc_samples", :force => true do |t|
     t.string  "message"
-    t.integer "timestamp", :limit => 8, :null => false
-    t.integer "gps_id"
+    t.integer "timestamp",     :limit => 8, :null => false
+    t.integer "gps_sample_id"
   end
 
   create_table "routes", :force => true do |t|
@@ -33,8 +33,8 @@ ActiveRecord::Schema.define(:version => 20121101014236) do
 
   create_table "surveys", :force => true do |t|
     t.string  "answer"
-    t.integer "timestamp", :limit => 8, :null => false
-    t.integer "nfc_id"
+    t.integer "timestamp",     :limit => 8, :null => false
+    t.integer "nfc_sample_id"
   end
 
 end

@@ -3,7 +3,7 @@ class CreateNfcSamples < ActiveRecord::Migration
     create_table 'nfc_samples' do |t|
       t.string 'message'
       t.integer 'timestamp',:null => false, :limit => 8
-      t.integer 'gps_id'
+      t.integer 'gps_sample_id'
     end
   end
 
