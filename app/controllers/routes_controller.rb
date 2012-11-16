@@ -200,7 +200,7 @@ class RoutesController < ApplicationController
  #FROM gps_samples INNER JOIN routes
  #  ON gps_samples.route_id = routes.id Inner JOIN nfc_samples
  #  ON nfc_samples.gps_id=gps_samples.id
- #WHERE routes.id='"+@route.id.to_s+"'")
+ #WHERE routes.id='"+@route.id.to_s+"'") Prueba prueba prueba
 
 
 
