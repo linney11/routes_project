@@ -32,7 +32,7 @@ function initMap(locations) {
 
     var styles = new OpenLayers.StyleMap({
         "default": new OpenLayers.Style(OpenLayers.Util.applyDefaults({
-            externalGraphic: "/assets/maps/icons/blue-dot.png",
+            externalGraphic: '/assets/maps/img/blue-bus.png',
             backgroundGraphic: "/assets/maps/icons/balloon-shadow.png",
             graphicZIndex: MARKER_Z_INDEX,
             backgroundGraphicZIndex: SHADOW_Z_INDEX,
@@ -43,7 +43,7 @@ function initMap(locations) {
             graphicYOffset: -32
         }, OpenLayers.Feature.Vector.style["default"])),
         "select": new OpenLayers.Style({
-            externalGraphic: "/assets/maps/icons/red-dot.png"
+            externalGraphic: '/assets/maps/img/red-bus.png'
         })
     });
 
@@ -51,6 +51,7 @@ function initMap(locations) {
     map.addLayer(locationsLayer);
 
     for (var location in locationsJSON) {
+
         var locationPosition = new OpenLayers.LonLat(locationsJSON[location].longitude, locationsJSON[location].latitude).transform(fromProjection, toProjection);
         var datetimestamp=locationsJSON[location].timestamp
         //var dateconverted=new Date(datetimestamp).format('h:i:s')
@@ -67,6 +68,7 @@ function initMap(locations) {
         );
 
         locationsLayer.addFeatures(locationMarker);
+
     }
 
     selectControl = new OpenLayers.Control.SelectFeature(

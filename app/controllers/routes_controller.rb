@@ -19,13 +19,15 @@ class RoutesController < ApplicationController
                       ON nfc_samples.gps_sample_id = gps_samples.id
                       INNER JOIN routes
                       ON gps_samples.route_id=routes.id
-                      WHERE routes.id='"+params[:id]+"'".to_s
-    #@gps = stm.execute
+                      WHERE routes.id='"+params[:id]+"'
+                      AND surveys.answer <>  '<null>'"
 
-    #            nfcRoute = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => route.id}}
 
-    #@gps = GpsSample.find_all_by_route_id(params[:id])
-    #@nfc = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => route.id}}
+        #Procesar los datos para mandar solamente una hash con el timestamp, el mensaje,  y un string donde se concatenen
+         #los mensajes que se van a mostrar en la gps.
+
+
+
 
   end
 

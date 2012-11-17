@@ -11,27 +11,38 @@
  *= require_self
  *= require_tree .
  */
+html {
+    padding: 0px;
+    margin: 0px;
+    background-image: url("images/graphy.png");
+    font-family: Helvetica, Arial, sans-serif;
 
+}
 
 body {
-    background: #dcdcdc url("images/graphy.png");
-    font-family: arial
+    background: url("images/graphy.png");
+    background-color: #F7F7F7;
+    padding: 0px;
+    margin: 0px;
 
 }
 
 
 header{
-    background: url("images/low_contrast_linen.png") repeat-x 0;
-    height:100px;
-    margin:0;
-    padding:0;
-    color:#ffffff;
-    font-size: 18px;
+    background-image: url("images/low_contrast_linen.png");
+    border-spacing: 0px;
+    height: 150px;
+    position: relative;
+    margin:0px ;
+    padding:0px;
 }
 
 header h1{
-     margin-left: 150px;
-    padding-top:20px;
+    font-weight: bold;
+    font-size: 50px;
+    color: #fff;
+    padding: 10px;
+    padding-top: 30px;
 
 }
 
@@ -43,21 +54,30 @@ form{
     margin-top: 120px;
 }
 
-li{
-    margin-top: -50px;
-    list-style: none
+
+#logo{
+    background: url(logo1.png) no-repeat;
+    float: left;
+    width: 150px;
+    height: 130px;
+
+
 }
 
 table#table{
-    margin-top: 90px;
+    padding: 10px;
+    margin-left: 5%;
+}
+section#mitad{
+    padding: 10px;
+    margin-left: 5%;
+    height: 100%
 }
 
 div#map {
-    position: relative;
-    float: left;
-    margin-left: 7.5%;
-    margin-bottom: 5px;
-    height: 600px;
-    width: 85%;
+    width: 95%;
+    height:70%;
+    height: 500px;
+
 }
 
