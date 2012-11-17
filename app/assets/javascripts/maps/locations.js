@@ -57,7 +57,7 @@ function initMap(locations) {
         var dateconverted= timeConverter(datetimestamp)
         var locationMarker = new OpenLayers.Feature.Vector(
             new OpenLayers.Geometry.Point(locationPosition.lon, locationPosition.lat), {
-                title: locationsJSON[location].route_id,
+                title: locationsJSON[location].message,
                 description: dateconverted
                // description: locationsJSON[location].description
                // timeConverter(timestamp)

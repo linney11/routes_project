@@ -8,8 +8,24 @@ class RoutesController < ApplicationController
   end
 
   def show
+    db = SQLite3::Database.open "db/development.sqlite3"
+    db.results_as_hash = true
+
     @id = Route.find(params[:id])
-    @gps = GpsSample.find_all_by_route_id(params[:id])
+    @gps = db.execute "SELECT routes.name, gps_samples.latitude, gps_samples.longitude, nfc_samples.timestamp,nfc_samples.message, surveys.answer
+                      FROM  nfc_samples INNER JOIN surveys
+                      ON nfc_samples.id = surveys.nfc_sample_id
+                      INNER JOIN gps_samples
+                      ON nfc_samples.gps_sample_id = gps_samples.id
+                      INNER JOIN routes
+                      ON gps_samples.route_id=routes.id
+                      WHERE routes.id='"+params[:id]+"'".to_s
+    #@gps = stm.execute
+
+    #            nfcRoute = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => route.id}}
+
+    #@gps = GpsSample.find_all_by_route_id(params[:id])
+    #@nfc = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => route.id}}
 
   end
 
@@ -179,23 +195,24 @@ class RoutesController < ApplicationController
                                             "gps_sample_id" => gpsRuta[gpsRuta.length-1].id)
                     nfcRuta.save!
                   end
-
                 end
               end
             end
 
 
             #Hacer el match de las surveys con el nfc
-            #error = -60000
+
             nfcRoute = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => route.id}}
             act = 0
-            error = 20000
+            error = 20000 #menor porcentaje de error y menor perdida de información
             surveyArray.each do |survey|
-              #si el Nfc es mayor a inicio y menor a final, se buscará el gps con menor diferencia
+              #si el survey es mayor a inicio y menor a final mas 1 min, se buscará el gps con menor diferencia
               if survey["timestamp"].to_i>inicio && survey["timestamp"].to_i<(timeFinal[idx]+60000)
-                dif = nfcRoute[act].timestamp.to_i-survey["timestamp"].to_i #Calcula la diferencia, se le resta un día
+                dif = nfcRoute[act].timestamp.to_i-survey["timestamp"].to_i #Calcula la diferencia,
                 min = dif #diferencia minima
                 ap = act #apuntador para buscar el menor
+
+
 
                 while error > dif && !nfcRoute[ap+1].nil? #mientras que el error sea mayor al a diferencia o se termine de recorrer el arreglo
                   if dif >= min #si la diferencia es menor al mínimo entonces hay un nuevo mínimo
@@ -204,20 +221,35 @@ class RoutesController < ApplicationController
                   end
                   ap=ap+1 #incremento el apuntador
                   dif=nfcRoute[ap].timestamp.to_i-survey["timestamp"].to_i #calculo la nueva diferencia
+
+
+                  #Se agrega un survey para las etiquetas FIN
+                  if nfcRoute[ap].message=="FIN"
+                    surveyRoute = Survey.new("answer" => "FIN",
+                                             "timestamp" => nfcRoute[ap].timestamp,
+                                             "nfc_sample_id" => nfcRoute[ap].id)
+                    surveyRoute.save!
+                  end
+
                 end
 
-                if error > min.abs #si el error es mayor al mínimo entonces guardo el nfc con el id de la ruta actual
+                if error > min.abs #si el error es mayor al mínimo entonces guardo el survey con el id del nfc actual
 
                   surveyRoute = Survey.new("answer" => survey["answer"],
                                            "timestamp" => survey["timestamp"],
                                            "nfc_sample_id" => nfcRoute[act].id)
                   surveyRoute.save!
+
+
+
                 end
+
+
+
+
               end
 
             end
-
-
             #               @nfcR = NfcSample.find_by_sql("SELECT * FROM gps_samples INNER JOIN routes ON gps_samples.route_id = routes.id Inner JOIN nfc_samples
             #                      ON nfc_samples.gps_id=gps_samples.id WHERE routes.id='"+@route.id.to_s+"'")
 
@@ -258,14 +290,10 @@ class RoutesController < ApplicationController
             #  end
             #end
 
-
           end
-
         end
-
       end
     end
-
     @routes=Route.all
 
   end
