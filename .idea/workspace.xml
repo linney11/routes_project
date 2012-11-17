@@ -2,14 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c3728168-1711-4359-8710-95148b13d53a" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/.rakeTasks" afterPath="$PROJECT_DIR$/.idea/.rakeTasks" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dataSources.ids" afterPath="$PROJECT_DIR$/.idea/dataSources.ids" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dataSources.xml" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controllers/routes_controller.rb" afterPath="$PROJECT_DIR$/app/controllers/routes_controller.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/gps_sample.rb" afterPath="$PROJECT_DIR$/app/models/gps_sample.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/models/nfc_sample.rb" afterPath="$PROJECT_DIR$/app/models/nfc_sample.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/routes/upload.html.haml" afterPath="$PROJECT_DIR$/app/views/routes/upload.html.haml" />
     </list>
     <ignored path="routes_project.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -615,7 +608,11 @@
       <created>1353004267717</created>
       <updated>1353004267717</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Survey">
+      <created>1353134336185</created>
+      <updated>1353134336185</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
