@@ -1,24 +1,28 @@
 %header
  %div#logo
- %h1.title Upload Route
+ %h1.title Upload Sensed Route
 
+
+%p= "Route: "+ @general_route.name
 
 = form_tag routes_upload_path, :method => :post, :enctype=>"multipart/form-data" do
  = file_field_tag :file
+ %input{:type => "hidden", :value=> @general_route.id, :name=>"id"}
  = submit_tag 'Upload'
 
 
--if !@file.nil?
+-if !@routes.nil?
 
  %table#table
   %thead
    %tr
     %th Name
+    %th Date
    %tbody
-   - @routes.each do |a|
+   - @routes.each do |r|
     %tr
-     %td= a.name
+     %td=link_to r.name,  route_path(r.id)
 
-%p= link_to 'Back to Routes list', routes_path
+%p= link_to 'Back to Routes list', general_route_index_path
 
 

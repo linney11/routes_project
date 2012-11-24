@@ -1,0 +1,26 @@
+
+%h1.title All Routes
+
+%table#table
+  %thead
+    %tr
+      %th Name
+      %th Description
+      %th
+      %th
+      %th
+
+  %tbody
+    - @general_routes.each do |route|
+      %tr
+        %td= link_to route.name, general_route_path(route)
+        %td= route.description
+        %td= link_to "Upload File", routes_upload_path(:id=> route.id)
+        %td= link_to "Edit", edit_general_route_path(route)
+        %td= link_to "Delete", general_route_path(route), :method => :delete, :confirm => 'Are you sure?'
+
+%p=link_to "Create new Route", new_general_route_path
+
+%p=link_to "Delete all", destroy_all_general_route_index_path, :method => :post, :confirm => 'Are you sure?'
+
+

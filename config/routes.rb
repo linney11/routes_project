@@ -8,6 +8,13 @@ RoutesProject::Application.routes.draw do
       get :destroy_all
     end
   end
+
+
+  resources :general_route do
+    collection do
+      get :destroy_all
+    end
+  end
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

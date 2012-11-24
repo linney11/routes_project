@@ -1,0 +1,15 @@
+%h1.title Input Route
+
+= form_tag general_route_index_path, :method => :post do
+
+  = label :general_route, :name, 'Name'
+  = text_field :general_route, :name
+
+  = label :general_route, :description, 'Description'
+  = text_area :general_route, :description
+
+  %p
+  = submit_tag 'Save Changes'
+
+%p
+= link_to 'Back to location list', general_route_index_path

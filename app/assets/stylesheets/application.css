@@ -81,3 +81,51 @@ div#map {
 
 }
 
+form label {
+    display: block;
+    line-height: 18px;
+    font-size: 13px;
+    font-weight: bold;
+    color: black;
+}
+
+form table td label {
+    text-align:right;
+}
+
+form textarea {
+    width: 390px;
+    height: 100px;
+    padding: 2px;
+}
+
+
+table#table {
+    /*margin: 10px;*/
+    border-collapse: collapse;
+    width: 80%;
+}
+
+table#table th {
+    /*border: 2px solid white;*/
+    border: 0px solid white;
+    font-weight: bold;
+}
+
+table#table th, table#table td {
+    padding: 4px;
+    text-align: left;
+}
+
+
+.flash {
+    border: 1px solid #000000;
+    color: #0a09ad;
+    font-weight: bold;
+    margin: 1em 0;
+    padding: 4px;
+    background-color: #ffe8e6;
+}
+
+
+

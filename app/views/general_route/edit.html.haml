@@ -1,0 +1,15 @@
+%h1.title Update existing Route
+
+= form_tag general_route_path(@general_route), :method => :put do
+
+  = label :general_route, :name, 'Name'
+  = text_field :general_route, :name
+
+  = label :general_route, :description, 'Description'
+  = text_area :general_route, :description
+
+  %p
+  = submit_tag 'Update Location Info'
+
+%p
+= link_to 'Back to location list', general_route_index_path

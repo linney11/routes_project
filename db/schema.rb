@@ -11,7 +11,12 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121101010527) do
+ActiveRecord::Schema.define(:version => 20121121013744) do
+
+  create_table "general_routes", :force => true do |t|
+    t.string "name",        :null => false
+    t.string "description"
+  end
 
   create_table "gps_samples", :force => true do |t|
     t.float   "latitude",  :limit => 53, :null => false
@@ -27,8 +32,9 @@ ActiveRecord::Schema.define(:version => 20121101010527) do
   end
 
   create_table "routes", :force => true do |t|
-    t.string "name",        :null => false
-    t.string "description"
+    t.string  "name",             :null => false
+    t.string  "description"
+    t.integer "general_route_id"
   end
 
   create_table "surveys", :force => true do |t|

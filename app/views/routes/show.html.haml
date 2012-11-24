@@ -4,8 +4,11 @@
 
 
 %section#middle
+
+
+ %p=@general_route.name
  %p=@id.name
- %p= link_to 'Back to routes list', routes_path
+ %p= link_to 'Back to route: '+@general_route.name, general_route_path(@general_route)
 
  .map
   %div#map

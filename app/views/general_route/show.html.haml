@@ -1,0 +1,22 @@
+%h1.title Show Sensed Routes
+
+%p= "Name: " +@general_route.name
+%p= "Description: " +@general_route.description
+%p= show_flash
+
+
+%table#table
+ %thead
+  %tr
+   %th Name
+   %th Date
+ %tbody
+  -@routes.each do |r|
+   %tr
+    %td=link_to r.name,route_path(r.id)
+    %td=Time.at(GpsSample.find_by_route_id(r.id).timestamp.to_s[0..9].to_i).strftime("%b - %d - %Y")
+    %td=link_to "Delete", route_path(r.id), :method => :delete, :confirm => 'Are you sure?'
+
+
+
+%p= link_to 'Back to Routes list', general_route_index_path
