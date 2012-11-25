@@ -1,0 +1,25 @@
+%header
+ %div#logo
+ %h1.title Show Route
+
+
+%section#middle
+ %p
+ -@ids.each do|id|
+  =Route.find(id).name
+
+
+ -#%p=@general_route.name
+ -#%p=@id.name
+ -#%p= link_to 'Back to route: '+@general_route.name, general_route_path(@general_route)
+
+ .map
+  %div#map
+  %input#gps{:type => "hidden", :value => @gps.to_json}
+
+
+= javascript_include_tag '/assets/maps/OpenLayers'
+= javascript_include_tag '/assets/maps/locations1'
+:javascript
+  initMap($("#gps").val());
+

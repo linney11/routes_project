@@ -5,7 +5,7 @@ var selectControl;
 var SHADOW_Z_INDEX = 10;
 var MARKER_Z_INDEX = 11;
 
-function initMap(locations) {
+function initMap(locations1) {
     map = new OpenLayers.Map("map");
     var mapnik = new OpenLayers.Layer.OSM();
     var bing = new OpenLayers.Layer.Bing({
@@ -25,12 +25,14 @@ function initMap(locations) {
     }));
     map.setCenter(position, zoom);
 
-    var locationsJSON = eval('(' + locations + ')');
+    var locations = eval (locations1)
+    for (var i=0; i<locations.length; i++){
+    var locationsJSON = eval(locations[i]);
 
     //todo: use reviver function?
 //    var locationsJSON = JSON.parse(locations, reviver);
 
-    var styles = new OpenLayers.StyleMap({
+  /*  var styles = new OpenLayers.StyleMap({
         "default": new OpenLayers.Style(OpenLayers.Util.applyDefaults({
             externalGraphic: '/assets/maps/img/blue-bus.png',
             backgroundGraphic: "/assets/maps/icons/balloon-shadow.png",
@@ -58,7 +60,7 @@ function initMap(locations) {
         var dateconverted= timeConverter(datetimestamp)
         var locationMarker = new OpenLayers.Feature.Vector(
             new OpenLayers.Geometry.Point(locationPosition.lon, locationPosition.lat), {
-                title: locationsJSON[location].message ,
+                title: locationsJSON[location].name+"<br/>"+ locationsJSON[location].message ,
                 description:locationsJSON[location].answer + " <br/>" +dateconverted
 
                // description: locationsJSON[location].description
@@ -87,7 +89,7 @@ function initMap(locations) {
     locationsLayer.events.on({
         'featureselected': onFeatureSelect,
         'featureunselected': onFeatureUnselect
-    });
+    }); */
 
 //Empieza lo de pintar una linea con diversas coordenadas
     var lineLayer = new OpenLayers.Layer.Vector("Line Layer");
@@ -119,17 +121,24 @@ function initMap(locations) {
     var line = new OpenLayers.Geometry.LineString(points);
 
     var style = {
-        strokeColor: '#0000ff',
-        strokeOpacity: 0.5,
+        strokeColor:get_random_color(),
+        strokeOpacity: 1,
         strokeWidth: 5
     };
 
     var lineFeature = new OpenLayers.Feature.Vector(line, null, style);
     lineLayer.addFeatures([lineFeature]);
 }
+}
 
-
-
+    function get_random_color() {
+        var letters = '0123456789ABCDEF'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+            color += letters[Math.round(Math.random() * 15)];
+        }
+        return color;
+    }
 
 function timeConverter(timestamp){
     var a = new Date(timestamp);

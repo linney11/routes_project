@@ -36,7 +36,7 @@ class GeneralRouteController < ApplicationController
     # if the object saves correctly to the database
     if @general_route.update_attributes(params[:general_route])
       # redirect the user to index
-      redirect_to general_route_index_path
+      redirect_to general_route_index_path,  notice: 'Successful update'
     else
       # redirect the user to the edit method
       render action: 'edit'
@@ -51,7 +51,7 @@ class GeneralRouteController < ApplicationController
     @general_route.destroy
 
     # redirect the user to index
-    redirect_to general_route_index_path
+    redirect_to general_route_index_path , notice: 'Delete'
   end
 
   def destroy_all
@@ -59,7 +59,7 @@ class GeneralRouteController < ApplicationController
     GeneralRoute.destroy_all
 
     # redirect the user to index
-    redirect_to general_route_index_path
+    redirect_to general_route_index_path, notice: 'Delete All'
   end
 
 

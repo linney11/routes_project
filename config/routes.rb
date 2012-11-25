@@ -2,6 +2,7 @@ RoutesProject::Application.routes.draw do
 
   get "routes/upload"
   post "routes/upload"
+  post "routes/showAll"
 
   resources :routes do
     collection do

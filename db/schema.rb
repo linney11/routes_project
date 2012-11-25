@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121121013744) do
+ActiveRecord::Schema.define(:version => 20121125022002) do
 
   create_table "general_routes", :force => true do |t|
     t.string "name",        :null => false
@@ -29,6 +29,12 @@ ActiveRecord::Schema.define(:version => 20121121013744) do
     t.string  "message"
     t.integer "timestamp",     :limit => 8, :null => false
     t.integer "gps_sample_id"
+  end
+
+  create_table "passengers", :force => true do |t|
+    t.integer "timestamp", :limit => 8, :null => false
+    t.integer "count",     :limit => 8, :null => false
+    t.integer "route_id"
   end
 
   create_table "routes", :force => true do |t|

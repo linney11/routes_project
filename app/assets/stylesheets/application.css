@@ -51,7 +51,7 @@ section {
 }
 
 form{
-    margin-top: 120px;
+    margin-top: 50px;
 }
 
 
@@ -79,6 +79,12 @@ div#map {
     height:70%;
     height: 500px;
 
+}
+
+div#container{
+    min-width:400px;
+    height: 400px;
+    margin: 0 auto;
 }
 
 form label {
@@ -126,6 +132,8 @@ table#table th, table#table td {
     padding: 4px;
     background-color: #ffe8e6;
 }
+
+
 
 
 

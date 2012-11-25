@@ -2,9 +2,13 @@
  %div#logo
  %h1.title Show Route
 
+= javascript_include_tag 'https://www.google.com/jsapi'
+:javascript
+  google.load('visualization', '1', {packages: ['corechart']});
+
+
 
 %section#middle
-
 
  %p=@general_route.name
  %p=@id.name
@@ -14,9 +18,22 @@
   %div#map
   %input#gps{:type => "hidden", :value => @gps.to_json}
 
+.container
+ %div#container
+ %input#passengers{:type => "hidden", :value => @passengers.to_json}
+
+ %input#array{:type => "hidden", :value => @array}
+
+%h2.title Route Name: #{@id.name}
+
+
 
 = javascript_include_tag '/assets/maps/OpenLayers'
 = javascript_include_tag '/assets/maps/locations'
+= javascript_include_tag '/assets/charts/charts'
+
 :javascript
   initMap($("#gps").val());
+  drawVisualization($("#passengers").val(),$("#container").val(),$("#array").val());
+
 

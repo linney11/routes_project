@@ -4,19 +4,34 @@
 %p= "Description: " +@general_route.description
 %p= show_flash
 
-
-%table#table
- %thead
-  %tr
-   %th Name
-   %th Date
- %tbody
-  -@routes.each do |r|
+= form_tag routes_showAll_path, :method => :post do
+ %table#table
+  %thead
    %tr
-    %td=link_to r.name,route_path(r.id)
-    %td=Time.at(GpsSample.find_by_route_id(r.id).timestamp.to_s[0..9].to_i).strftime("%b - %d - %Y")
-    %td=link_to "Delete", route_path(r.id), :method => :delete, :confirm => 'Are you sure?'
+    %th= check_box_tag  "allbox",nil, nil, {:onclick=>"checkAll();"}
+    %th Name
+    %th Date
+    %th
 
+  %tbody
+   -@routes.each do |r|
+    %tr
+     %td=check_box_tag "route[]", r.id.to_s
+     %td=link_to r.name,route_path(r.id)
+     %td=Time.at(GpsSample.find_by_route_id(r.id).timestamp.to_s[0..9].to_i).strftime("%b - %d - %Y")
+     %td=link_to "Delete", route_path(r.id), :method => :delete, :confirm => 'Are you sure?'
 
-
+ %p= submit_tag 'View Selected Sensed'
 %p= link_to 'Back to Routes list', general_route_index_path
+
+:javascript
+  function checkAll(){
+  	for (var i=0;i<document.forms[0].elements.length;i++)
+  	{
+  		var e=document.forms[0].elements[i];
+  		if ((e.name != 'allbox') && (e.type=='checkbox'))
+  		{
+  			e.checked=document.forms[0].allbox.checked;
+  		}
+  	}
+  }

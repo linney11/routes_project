@@ -24,13 +24,47 @@ class RoutesController < ApplicationController
                       AND surveys.answer <>  '<null>'"
 
 
-    if @gps.length==0
+
+
+
+    if @gps.length==0  #se eliminar las rutas vacias
 
       Route.delete(@id)
       redirect_to general_route_path(:id=> @general_route.id), notice: 'The empty sensed was delete'
     end
         #Procesar los datos para mandar solamente una hash con el timestamp, el mensaje,  y un string donde se concatenen
          #los mensajes que se van a mostrar en la gps.
+
+    @passengers = Passenger.find_all_by_route_id(@id)
+    @array = []
+    @array << @passengers.to_json
+
+
+
+  end
+
+  def showAll
+    db = SQLite3::Database.open "db/development.sqlite3"
+    db.results_as_hash = true
+
+    @ids=params[:route]
+    @gps=Array.new
+
+    @ids.each do |id|
+      @gps.push (db.execute "SELECT routes.name, gps_samples.latitude, gps_samples.longitude, nfc_samples.timestamp,nfc_samples.message, surveys.answer
+                        FROM  nfc_samples INNER JOIN surveys
+                        ON nfc_samples.id = surveys.nfc_sample_id
+                        INNER JOIN gps_samples
+                        ON nfc_samples.gps_sample_id = gps_samples.id
+                        INNER JOIN routes
+                        ON gps_samples.route_id=routes.id
+                        WHERE routes.id='"+id+"'
+                        AND surveys.answer <>  '<null>'")
+    end
+
+
+
+
 
   end
 
@@ -43,7 +77,7 @@ class RoutesController < ApplicationController
 
     # redirect the user to index
     general_route=GeneralRoute.find(@route.general_route_id)
-    redirect_to general_route_path(:id=> general_route.id)
+    redirect_to general_route_path(:id=> general_route.id),  notice: 'Route deleted'
   end
 
   def upload
@@ -325,14 +359,159 @@ class RoutesController < ApplicationController
           end
         end
 
+        routes = Route.find_all_by_general_route_id(@general_route.id)
+        routes.each do |r|
+          passengers(r.id)
+        end
+
+
 
 
       end
-      redirect_to routes_upload_path(:id=> @general_route.id)
+      redirect_to routes_upload_path(:id=> @general_route.id), notice: 'Successful load'
     end
   end
 
+   def passengers (id)
 
+     @nfc_samples = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => id}}
+     @survey = Survey.all :joins => {:nfc_sample => {:gps_sample => :route}}, :conditions => {:gps_samples => {:route_id => id}}
+
+     # @survey = Survey.all :joins => {:nfc_sample => {:gps_sample => :route}}, :conditions => [{:nfc_samples => :gps_samples}, {:gps_samples => {:route_id => @route.id}}]
+
+     # @survey = Survey.all :joins => {:nfc_sample => {:gps_sample => :route}}
+     #
+     #@gps = db.execute "SELECT routes.name, gps_samples.latitude, gps_samples.longitude, nfc_samples.timestamp,nfc_samples.message, surveys.answer
+     #                FROM  nfc_samples INNER JOIN surveys
+     #                ON nfc_samples.id = surveys.nfc_sample_id
+     #                INNER JOIN gps_samples
+     #                ON nfc_samples.gps_sample_id = gps_samples.id
+     #                INNER JOIN routes
+     #                ON gps_samples.route_id=routes.id
+     #                WHERE routes.id='"+params[:id]+"'
+     #                AND surveys.answer <>  '<null>'"
+
+     #@nfc_samples = @nfc_samples.to_json
+     #
+     # @nfc_inicio = @nfc_samples[0].message
+     #
+     # @nfc_samples.each do |nfc| #obtener todos los surveys de la ruta actual
+     #   @survey = Survey.find_all_by_nfc_sample_id(nfc).to_json
+     # end
+
+     @passengers_number = 0 #variable para almacenar el núnmero de pasajeros por hora.
+
+     #@survey[0]["answer"]=="NFC"
+
+
+     # @array = []
+     #@array_temp = []
+     @nfc_samples.each do |nfc|
+       if nfc["message"]=="INICIO"
+
+         @survey2 = Survey.find_all_by_nfc_sample_id(nfc)
+
+         #@survey.each do |surv|
+         #  if surv.nfc_sample_id == nfc.id
+         #    survey = survey + surv.answer #Como el Inicio tiene 2 surveys, la segunda es la que dice cuántos pasajeros trae actualmente el camión
+         #  end
+         #end
+
+         #@bus_size = @survey2[1].answer.to_i
+
+         # @bus_size2 = @bus_size.to_i
+
+        if !@survey2.nil?
+          if !@survey2[0].nil?
+            if !@survey2[0].answer.nil?
+            @bus_size = @survey2[0].answer.to_i #Obtener la capacidad de pasajeros que puede llevar el camion de la ruta sensada
+          end
+        end
+         #@bus_size = @survey2[0].answer.to_i
+
+       if !@survey2[1].nil?
+         if !@survey2[1].answer.nil?
+           @passengers_number = @survey2[1].answer.to_i #Sacar la segunda survey que se almacenó con el id de la nfc de inicio
+
+           @passengers = Passenger.new("timestamp" => nfc.timestamp,
+                                       "count" => @passengers_number,
+                                       "route_id" => id)
+           @passengers.save!
+         end
+       end
+
+        end
+
+         #creamos un hash con el timestamp de la nfc, con la cantidad de los pasajeros en ese momento y con el id de la ruta a la que pertenece
+         #source_hash = {timestamp: nfc.timestamp, count: @passengers_number, route_id: @route.id}
+         ##Generamos un archivo json a partir del hash
+         #json_string = JSON.generate source_hash
+         ##json_string = json_string.to_json
+         ##concatenamos del hash en una posición de un arreglo de hashes.
+         #@array_temp << json_string
+
+         #source_hash = {s: 12, f: 43}
+         #json_string = JSON.generate source_hash
+         #back_to_hash = JSON.parse json_string
+
+         #formar el json con los datos hasta esa fecha y hora. Crear un elemento de json y concatenarlo.
+       end
+
+       if nfc["message"]=="SUBIDA" #Si el mensaje es subida, entonces le sumamos la cantidad al numero de pasajeros actuales
+         @survey3 = Survey.find_all_by_nfc_sample_id(nfc)
+         # @passengers_rep = Passenger.find_all_by_timestamp(nfc)
+
+         if !@survey3.nil?
+           @survey3.each do |surv|
+             if Passenger.find_all_by_timestamp(nfc.timestamp).length == 0 #Para cuando se repita la survey con el mismo nfc_id, solo escribir una
+               if !surv.answer.nil?
+
+                 @passengers_number = @passengers_number + surv.answer.to_i
+                 @passengers = Passenger.new("timestamp" => nfc.timestamp,
+                                             "count" => @passengers_number,
+                                             "route_id" => id)
+                 @passengers.save!
+
+               end
+             end
+           end
+         end
+
+         #@survey.each do |surv| #Buscamos la survey con el id de la nfc para encontrar la respuesta
+         #  if surv.nfc_sample_id == nfc.id @passengers_number = @passengers_number + surv.answer.to_i
+         #    @passengers_number = @passengers_number + surv.answer.to_i
+         #  end
+         #end
+
+         #source_hash = {timestamp: nfc.timestamp, count: @passengers_number, route_id: @route.id}
+         #json_string = JSON.generate source_hash
+         #@array_temp << json_string
+       end
+
+       if nfc["message"]=="BAJADA" #Si el mensaje es bajada, entonces restamos la cantidad en answer al numero de pasajeros.
+         @survey3 = Survey.find_all_by_nfc_sample_id(nfc)
+         # @passengers_rep = Passenger.find_all_by_timestamp(nfc)
+
+         if !@survey3.nil?
+           @survey3.each do |surv|
+             if Passenger.find_all_by_timestamp(nfc.timestamp).length == 0 #Para cuando se repita la survey con el mismo nfc_id, solo escribir una
+               if !surv.answer.nil?
+
+                 @passengers_number = @passengers_number - surv.answer.to_i
+                 @passengers = Passenger.new("timestamp" => nfc.timestamp,
+                                             "count" => @passengers_number,
+                                             "route_id" => id)
+                 @passengers.save!
+
+               end
+             end
+           end
+         end
+
+       end
+
+     end
+   end
 
 
 end
