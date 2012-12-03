@@ -4,7 +4,7 @@ require 'json'
 class RoutesController < ApplicationController
 
   def index
-      @routes=Route.all
+    @routes=Route.all
   end
 
   def show
@@ -21,50 +21,213 @@ class RoutesController < ApplicationController
                       INNER JOIN routes
                       ON gps_samples.route_id=routes.id
                       WHERE routes.id='"+params[:id]+"'
-                      AND surveys.answer <>  '<null>'"
+                      AND surveys.answer <>  '<null>' ORDER BY nfc_samples.timestamp"
 
 
-
-
-
-    if @gps.length==0  #se eliminar las rutas vacias
+    if @gps.length==0 #se eliminar las rutas vacias
 
       Route.delete(@id)
-      redirect_to general_route_path(:id=> @general_route.id), notice: 'The empty sensed was delete'
+      redirect_to general_route_path(:id => @general_route.id), notice: 'The empty sensed was delete'
     end
-        #Procesar los datos para mandar solamente una hash con el timestamp, el mensaje,  y un string donde se concatenen
-         #los mensajes que se van a mostrar en la gps.
+    #Procesar los datos para mandar solamente una hash con el timestamp, el mensaje,  y un string donde se concatenen
+    #los mensajes que se van a mostrar en la gps.
+
+    ##########################################################
+    #Procesar los datos para en el archivo que se manda, se concatenen los elementos con la misma gps para que el mensaje y el answer muestren cosas concatenadas.
+
+    #TO DO: Si es repetida la NFC (message y timestamp) y el answer de la survey, no concatenar ni el mensaje, ni la respuesta. Ejm PARADA/PARADA
+
+    count = 0
+    @gps_array = []
+
+    while !@gps[count + 1].nil? #
+      if @gps[count]["latitude"] == @gps[count + 1]["latitude"] && @gps[count]["longitude"] == @gps[count + 1]["longitude"]
+        source_hash = {"name" => @gps[count]["name"], "latitude" => @gps[count]["latitude"], "longitude" => @gps[count]["longitude"], "timestamp" => @gps[count]["timestamp"], "message" => @gps[count]["message"] + "/" + @gps[count + 1]["message"], "answer" => @gps[count]["answer"] + "/" + @gps[count + 1]["answer"]}
+        @gps_array << source_hash
+        count = count + 2
+        #elsif @gps[count]["message"] == "FIN"
+        #  source_hash = {"name" => @gps[count]["name"], "latitude" => @gps[count]["latitude"], "longitude" => @gps[count]["longitude"], "timestamp" => @gps[count]["timestamp"], "message" => @gps[count]["message"], "answer" => @gps[count]["answer"]}
+        #  @gps_array << source_hash
+      else
+        source_hash = {"name" => @gps[count]["name"], "latitude" => @gps[count]["latitude"], "longitude" => @gps[count]["longitude"], "timestamp" => @gps[count]["timestamp"], "message" => @gps[count]["message"], "answer" => @gps[count]["answer"]}
+        @gps_array << source_hash
+        count = count + 1
+      end
+    end
+
+    source_hash = {"name" => @gps[@gps.length - 1]["name"], "latitude" => @gps[@gps.length - 1]["latitude"], "longitude" => @gps[@gps.length - 1]["longitude"], "timestamp" => @gps[@gps.length - 1]["timestamp"], "message" => @gps[@gps.length - 1]["message"], "answer" => @gps[@gps.length - 1]["answer"]}
+    @gps_array << source_hash
+
+    count = 0
+    @gps_array2 = []
+
+    while !@gps_array[count + 1].nil? #
+      if @gps_array[count]["latitude"] == @gps_array[count + 1]["latitude"] && @gps_array[count]["longitude"] == @gps_array[count + 1]["longitude"]
+        source_hash = {"name" => @gps_array[count]["name"], "latitude" => @gps_array[count]["latitude"], "longitude" => @gps_array[count]["longitude"], "timestamp" => @gps_array[count]["timestamp"], "message" => @gps_array[count]["message"] + "/" + @gps_array[count + 1]["message"], "answer" => @gps_array[count]["answer"] + "/" + @gps_array[count + 1]["answer"]}
+        @gps_array2 << source_hash
+        count = count + 2
+        #elsif @gps[count]["message"] == "FIN"
+        #  source_hash = {"name" => @gps[count]["name"], "latitude" => @gps[count]["latitude"], "longitude" => @gps[count]["longitude"], "timestamp" => @gps[count]["timestamp"], "message" => @gps[count]["message"], "answer" => @gps[count]["answer"]}
+        #  @gps_array << source_hash
+      else
+        source_hash = {"name" => @gps_array[count]["name"], "latitude" => @gps_array[count]["latitude"], "longitude" => @gps_array[count]["longitude"], "timestamp" => @gps_array[count]["timestamp"], "message" => @gps_array[count]["message"], "answer" => @gps_array[count]["answer"]}
+        @gps_array2 << source_hash
+        count = count + 1
+      end
+    end
+
+    source_hash = {"name" => @gps_array[@gps_array.length - 1]["name"], "latitude" => @gps_array[@gps_array.length - 1]["latitude"], "longitude" => @gps_array[@gps_array.length - 1]["longitude"], "timestamp" => @gps_array[@gps_array.length - 1]["timestamp"], "message" => @gps_array[@gps_array.length - 1]["message"], "answer" => @gps_array[@gps_array.length - 1]["answer"]}
+    @gps_array2 << source_hash
+
+    ##########################################################
+    ##### Se encuentran los datos de pasajeros por hora...
 
     @passengers = Passenger.find_all_by_route_id(@id)
     @array = []
     @array << @passengers.to_json
 
 
+    ################################################################
+    #Se busca la capacidad de pasajeros que puede llevar el camión
+    @nfc_samples = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => @id}}
+    @bus_size = 0
 
+    @nfc_samples.each do |nfc|
+      if nfc["message"]=="INICIO"
+
+        @survey2 = Survey.find_all_by_nfc_sample_id(nfc)
+
+        if !@survey2.nil?
+          if !@survey2[0].nil?
+            if !@survey2[0].answer.nil?
+              @bus_size = @survey2[0].answer.to_i #Obtener la capacidad de pasajeros que puede llevar el camion de la ruta sensada
+            end
+          end
+        end
+
+      end
+    end
+
+    #######################################################
+
+    #######################################################
+    #Sacar la duración de la ruta en horas, minutos y segundos
+
+    #Se buscan todos los NFC de ese sensado
+    @nfc_samples = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => @id}}
+
+    @nfc_samples.each do |nfc|
+      if nfc["message"]=="INICIO"
+        @time_start = nfc.timestamp #Se obtiene el timestamp del inicio
+      end
+
+      if nfc["message"]=="FIN"
+        @time_end = nfc.timestamp #Se obtiene el ti  mestamp del final
+      end
+    end
+
+    route_duration = @time_end.to_i - @time_start.to_i
+
+    duration_seconds = route_duration/1000
+
+    seconds = duration_seconds.to_i
+    @duration = format_time (seconds) #Duración de la ruta actual en horas, minutos, segundos
+
+    ################################################
+
+    #################################################
+    #Crear un arreglo de coordenadas GPS para enviarselas al mapa a partir del INICIO y FIN de los NFC, aunque no tengan NFC
+    #Se buscan todas las coordenadas de ese sensado
+    @gps_all = GpsSample.find_all_by_route_id(@id)
+
+    #######################################################
+  end
+
+  def format_time (timeElapsed) #time in seconds
+
+    @timeElapsed = timeElapsed
+
+    #find the seconds
+    seconds = @timeElapsed % 60
+
+    #find the minutes
+    minutes = (@timeElapsed / 60) % 60
+
+    #find the hours
+    hours = (@timeElapsed/3600)
+
+    #format the time
+
+    return hours.to_s + ":" + format("%02d", minutes.to_s) + ":" + format("%02d", seconds.to_s)
   end
 
   def showAll
     db = SQLite3::Database.open "db/development.sqlite3"
     db.results_as_hash = true
 
-    @ids=params[:route]
-    @gps=Array.new
 
-    @ids.each do |id|
-      @gps.push (db.execute "SELECT routes.name, gps_samples.latitude, gps_samples.longitude, nfc_samples.timestamp,nfc_samples.message, surveys.answer
-                        FROM  nfc_samples INNER JOIN surveys
-                        ON nfc_samples.id = surveys.nfc_sample_id
-                        INNER JOIN gps_samples
-                        ON nfc_samples.gps_sample_id = gps_samples.id
-                        INNER JOIN routes
-                        ON gps_samples.route_id=routes.id
-                        WHERE routes.id='"+id+"'
-                        AND surveys.answer <>  '<null>'")
+    if !params[:route].nil?
+
+      @ids=params[:route]
+      route = Route.find(@ids[0])
+      @general_route = GeneralRoute.find(route.general_route_id)
+
+
+      @gps=Array.new
+      @color=Array.new
+      @x=Array.new
+      @duration=Array.new
+
+      @ids.each do |id|
+        #@gps.push (db.execute "SELECT routes.name, gps_samples.latitude, gps_samples.longitude, nfc_samples.timestamp,nfc_samples.message, surveys.answer
+        #                FROM  nfc_samples INNER JOIN surveys
+        #                ON nfc_samples.id = surveys.nfc_sample_id
+        #                INNER JOIN gps_samples
+        #                ON nfc_samples.gps_sample_id = gps_samples.id
+        #                INNER JOIN routes
+        #                ON gps_samples.route_id=routes.id
+        #                WHERE routes.id='"+id+"'
+        #                AND surveys.answer <>  '<null>'")
+
+        @gps.push (GpsSample.find_all_by_route_id(id))
+
+        @color.push("%06x" % (rand * 0xffffff))
+
+
+        @x.push(Passenger.where("route_id=?", id).group("route_id,count").order("count(count) DESC").first)
+
+
+        @nfc_samples = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => id}}
+
+        @nfc_samples.each do |nfc|
+          if nfc["message"]=="INICIO"
+            @time_start = nfc.timestamp #Se obtiene el timestamp del inicio
+          end
+
+          if nfc["message"]=="FIN"
+            @time_end = nfc.timestamp #Se obtiene el ti  mestamp del final
+          end
+        end
+
+        route_duration = @time_end.to_i - @time_start.to_i
+
+        duration_seconds = route_duration/1000
+
+        seconds = duration_seconds.to_i
+        @duration.push(format_time (seconds)) #Duración de la ruta actual en horas, minutos, segundos
+
+
+
+
+      end
+
+      @c=@color.clone
+      @color = @color.to_s.gsub!("[", "")
+      @color = @color.to_s.gsub!("]", "")
+
+    else
+      redirect_to :back, notice: 'Select a route'
     end
-
-
-
-
 
   end
 
@@ -77,7 +240,7 @@ class RoutesController < ApplicationController
 
     # redirect the user to index
     general_route=GeneralRoute.find(@route.general_route_id)
-    redirect_to general_route_path(:id=> general_route.id),  notice: 'Route deleted'
+    redirect_to general_route_path(:id => general_route.id), notice: 'Route deleted'
   end
 
   def upload
@@ -178,7 +341,7 @@ class RoutesController < ApplicationController
 
             #crear la ruta
 
-            route = Route.new("name" => name, "general_route_id"=>@general_route.id)
+            route = Route.new("name" => name, "general_route_id" => @general_route.id)
             route.save!
 
             route = Route.find_by_name(name)
@@ -189,7 +352,7 @@ class RoutesController < ApplicationController
               # Se resta 86400000 lo equivalente a un día en milisegundos por que los archivos estan
               # desfasados por un dia
 
-              #if GpsSample.find_by_timestamp(gps["timestamp"]).nil?
+              if GpsSample.find_by_timestamp(gps["timestamp"]).nil? #Descomentar o comentar
                 if inicio[idx].to_i <= gps["timestamp"].to_i-86400000 && gps["timestamp"].to_i-86400000 <= timeFinal[idx].to_i
 
                   gps = GpsSample.new("latitude" => gps["latitude"],
@@ -199,7 +362,7 @@ class RoutesController < ApplicationController
                   gps.save!
 
                 end
-              #end
+              end
             end
 
             #Falta realizar el match entre las NFCs y las coordenadas, así como asignarle a cada NFC su
@@ -215,7 +378,7 @@ class RoutesController < ApplicationController
               #El primer Nfc Inicio se asigna al primer gps
               if nfc["timestamp"]==inicio
                 nfcRuta = NfcSample.new("message" => nfc["message"],
-                                        "timestamp" => nfc["timestamp"],
+                                        "timestamp" => nfc["timestamp"], #gpsRuta[0].timestamp, #["timestamp"], #ponerle el tiempo de la gps???
                                         "gps_sample_id" => gpsRuta[0].id)
 
                 nfcRuta.save!
@@ -247,7 +410,7 @@ class RoutesController < ApplicationController
                   #si el NFC es igual a fin se asigna al último gps
                   if  nfc["timestamp"]==timeFinal[idx]
                     nfcRuta = NfcSample.new("message" => nfc["message"],
-                                            "timestamp" => nfc["timestamp"],
+                                            "timestamp" => nfc["timestamp"], #asignarle el tiempo de la gps
                                             "gps_sample_id" => gpsRuta[gpsRuta.length-1].id)
                     nfcRuta.save!
                   end
@@ -302,54 +465,42 @@ class RoutesController < ApplicationController
                     end
                   end
                 end
+              end
+            end
+          end
+        end
 
+        ######################################################
+        #Si un NFC de INICIO no tiene surveys, crearlas... Tiene un problema: si dos NFC coinciden en la coordenada, se muestra en el globito solo el mensaje de la útima NFC de esa coordenada.
+
+        routes = Route.find_all_by_general_route_id(@general_route.id)
+        routes.each do |r|
+          @nfc_samples = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => r.id}}
+
+          @nfc_samples.each do |nfc|
+            if nfc["message"]=="INICIO"
+
+              #@survey2 = Survey.find_all_by_nfc_sample_id(nfc)
+
+              if Survey.find_all_by_nfc_sample_id(nfc.id).length == 0
+                #if @survey2.nil?
+                survey_Inicio1 = Survey.new("answer" => "25",
+                                            "timestamp" => nfc.timestamp,
+                                            "nfc_sample_id" => nfc.id)
+                survey_Inicio1.save!
+
+                survey_Inicio2 = Survey.new("answer" => "14",
+                                            "timestamp" => nfc.timestamp,
+                                            "nfc_sample_id" => nfc.id)
+                survey_Inicio2.save!
 
               end
 
-
             end
-            #               @nfcR = NfcSample.find_by_sql("SELECT * FROM gps_samples INNER JOIN routes ON gps_samples.route_id = routes.id Inner JOIN nfc_samples
-            #                      ON nfc_samples.gps_id=gps_samples.id WHERE routes.id='"+@route.id.to_s+"'")
-
-            #ap=0 # Apuntador para recorrer el archivo de NFC.
-            #
-            #@S.each do |survey|
-            #  if survey["timestamp"].to_i > inicio && survey["timestamp"].to_i < (timeFinal[idx]+60000)
-            #    dif =@NfcRoute[ap].timestamp.to_i- survey["timestamp"].to_i  #Calcula la diferencia
-            #    @x.push(dif)
-            #    #min = dif
-            #    #while error > dif && !@NfcRoute[ap+1].nil?
-            #    #  if dif < min && dif > 0 #si la diferencia es menor al mínimo entonces hay un nuevo mínimo
-            #    #    min = dif
-            #    #    act = ap
-            #    #  end
-            #    #  ap = ap+1
-            #    #  dif =@NfcRoute[ap].timestamp.to_i- survey["timestamp"].to_i  #Calcula la diferencia
-            #
-            #      #dif = survey["timestamp"].to_i - @NfcRoute[ap].timestamp.to_i  #Calcula la diferencia
-            #    #min = dif   #diferencia minima
-            #    #j = ap #apuntador para buscar el menor
-            #    #while error > dif && !gpsRuta[j+1].nil?   #mientras que el error sea mayor al a diferencia o se termine de recorrer el arreglo
-            #    #  if dif.abs < min.abs #si la diferencia es menor al mínimo entonces hay un nuevo mínimo
-            #    #    min = dif
-            #    #    act = j
-            #    #  end
-            #    #  j=j+1   #incremento el apuntador
-            #    #  dif=gpsRuta[j].timestamp.to_i-86400000-nfc["timestamp"]   #calculo la nueva diferencia
-            #    #end
-            #    #
-            #    #end
-            #    #if error > dif  #si el error es mayor al la diferencia y es positivo entonces guardo el nfc con el id de la ruta actual
-            #    #  @surveyRoute = Survey.new("answer"=>survey["answer"],
-            #    #                           "timestamp"=>survey["timestamp"],
-            #    #                           "nfc_sample_id"=>@NfcRoute[ap].id)
-            #    #  @surveyRoute.save!
-            #    #end
-            #  end
-            #end
-
           end
         end
+
+        ##########################Fin de crear las surveys cuando un INICIO no tiene
 
         routes = Route.find_all_by_general_route_id(@general_route.id)
         routes.each do |r|
@@ -365,153 +516,95 @@ class RoutesController < ApplicationController
         end
 
 
-
-
       end
-      redirect_to routes_upload_path(:id=> @general_route.id), notice: 'Successful load'
+      redirect_to routes_upload_path(:id => @general_route.id), notice: 'Successful load'
     end
   end
 
-   def passengers (id)
+  def passengers (id)
 
-     @nfc_samples = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => id}}
-     @survey = Survey.all :joins => {:nfc_sample => {:gps_sample => :route}}, :conditions => {:gps_samples => {:route_id => id}}
+    @nfc_samples = NfcSample.all :joins => {:gps_sample => :route}, :conditions => {:gps_samples => {:route_id => id}}
+    @survey = Survey.all :joins => {:nfc_sample => {:gps_sample => :route}}, :conditions => {:gps_samples => {:route_id => id}}
 
-     # @survey = Survey.all :joins => {:nfc_sample => {:gps_sample => :route}}, :conditions => [{:nfc_samples => :gps_samples}, {:gps_samples => {:route_id => @route.id}}]
+    @passengers_number = 0 #variable para almacenar el núnmero de pasajeros por hora.
 
-     # @survey = Survey.all :joins => {:nfc_sample => {:gps_sample => :route}}
-     #
-     #@gps = db.execute "SELECT routes.name, gps_samples.latitude, gps_samples.longitude, nfc_samples.timestamp,nfc_samples.message, surveys.answer
-     #                FROM  nfc_samples INNER JOIN surveys
-     #                ON nfc_samples.id = surveys.nfc_sample_id
-     #                INNER JOIN gps_samples
-     #                ON nfc_samples.gps_sample_id = gps_samples.id
-     #                INNER JOIN routes
-     #                ON gps_samples.route_id=routes.id
-     #                WHERE routes.id='"+params[:id]+"'
-     #                AND surveys.answer <>  '<null>'"
+    @nfc_samples.each do |nfc|
+      if nfc["message"]=="INICIO"
 
-     #@nfc_samples = @nfc_samples.to_json
-     #
-     # @nfc_inicio = @nfc_samples[0].message
-     #
-     # @nfc_samples.each do |nfc| #obtener todos los surveys de la ruta actual
-     #   @survey = Survey.find_all_by_nfc_sample_id(nfc).to_json
-     # end
-
-     @passengers_number = 0 #variable para almacenar el núnmero de pasajeros por hora.
-
-     #@survey[0]["answer"]=="NFC"
-
-
-     # @array = []
-     #@array_temp = []
-     @nfc_samples.each do |nfc|
-       if nfc["message"]=="INICIO"
-
-         @survey2 = Survey.find_all_by_nfc_sample_id(nfc)
-
-         #@survey.each do |surv|
-         #  if surv.nfc_sample_id == nfc.id
-         #    survey = survey + surv.answer #Como el Inicio tiene 2 surveys, la segunda es la que dice cuántos pasajeros trae actualmente el camión
-         #  end
-         #end
-
-         #@bus_size = @survey2[1].answer.to_i
-
-         # @bus_size2 = @bus_size.to_i
+        @survey2 = Survey.find_all_by_nfc_sample_id(nfc)
 
         if !@survey2.nil?
           if !@survey2[0].nil?
             if !@survey2[0].answer.nil?
-            @bus_size = @survey2[0].answer.to_i #Obtener la capacidad de pasajeros que puede llevar el camion de la ruta sensada
+              @bus_size = @survey2[0].answer.to_i #Obtener la capacidad de pasajeros que puede llevar el camion de la ruta sensada
+            end
+          end
+          #@bus_size = @survey2[0].answer.to_i
+
+          if !@survey2[1].nil?
+            if !@survey2[1].answer.nil?
+              @passengers_number = @survey2[1].answer.to_i #Sacar la segunda survey que se almacenó con el id de la nfc de inicio
+
+              @passengers = Passenger.new("timestamp" => nfc.timestamp,
+                                          "count" => @passengers_number,
+                                          "route_id" => id)
+              @passengers.save!
+            end
+          end
+
+        end
+      end
+
+      if nfc["message"]=="SUBIDA" #Si el mensaje es subida, entonces le sumamos la cantidad al numero de pasajeros actuales
+        @survey3 = Survey.find_all_by_nfc_sample_id(nfc)
+        # @passengers_rep = Passenger.find_all_by_timestamp(nfc)
+
+        if !@survey3.nil?
+          @survey3.each do |surv|
+            if Passenger.find_all_by_timestamp(nfc.timestamp).length == 0 #Para cuando se repita la survey con el mismo nfc_id, solo escribir una
+              if !surv.answer.nil?
+                answer = surv.answer.to_i
+                if answer.is_a?(Numeric) && answer != 0
+                  @passengers_number = @passengers_number + surv.answer.to_i
+                  @passengers = Passenger.new("timestamp" => nfc.timestamp,
+                                              "count" => @passengers_number,
+                                              "route_id" => id)
+                  @passengers.save!
+                end
+              end
+            end
           end
         end
-         #@bus_size = @survey2[0].answer.to_i
 
-       if !@survey2[1].nil?
-         if !@survey2[1].answer.nil?
-           @passengers_number = @survey2[1].answer.to_i #Sacar la segunda survey que se almacenó con el id de la nfc de inicio
+      end
 
-           @passengers = Passenger.new("timestamp" => nfc.timestamp,
-                                       "count" => @passengers_number,
-                                       "route_id" => id)
-           @passengers.save!
-         end
-       end
+      if nfc["message"]=="BAJADA" #Si el mensaje es bajada, entonces restamos la cantidad en answer al numero de pasajeros.
+        @survey3 = Survey.find_all_by_nfc_sample_id(nfc)
+        # @passengers_rep = Passenger.find_all_by_timestamp(nfc)
 
+        if !@survey3.nil?
+          @survey3.each do |surv|
+            if Passenger.find_all_by_timestamp(nfc.timestamp).length == 0 #Para cuando se repita la survey con el mismo nfc_id, solo escribir una
+              if !surv.answer.nil?
+                answer = surv.answer.to_i
+                if answer.is_a?(Numeric) && answer != 0
+                  #preguntar si es string foo.is_a?(String) 1.is_a? Numeric var.is_a? String var.is_a? Numeric
+
+                  @passengers_number = @passengers_number - surv.answer.to_i
+                  @passengers = Passenger.new("timestamp" => nfc.timestamp,
+                                              "count" => @passengers_number,
+                                              "route_id" => id)
+                  @passengers.save!
+                end
+              end
+            end
+          end
         end
 
-         #creamos un hash con el timestamp de la nfc, con la cantidad de los pasajeros en ese momento y con el id de la ruta a la que pertenece
-         #source_hash = {timestamp: nfc.timestamp, count: @passengers_number, route_id: @route.id}
-         ##Generamos un archivo json a partir del hash
-         #json_string = JSON.generate source_hash
-         ##json_string = json_string.to_json
-         ##concatenamos del hash en una posición de un arreglo de hashes.
-         #@array_temp << json_string
+      end
 
-         #source_hash = {s: 12, f: 43}
-         #json_string = JSON.generate source_hash
-         #back_to_hash = JSON.parse json_string
-
-         #formar el json con los datos hasta esa fecha y hora. Crear un elemento de json y concatenarlo.
-       end
-
-       if nfc["message"]=="SUBIDA" #Si el mensaje es subida, entonces le sumamos la cantidad al numero de pasajeros actuales
-         @survey3 = Survey.find_all_by_nfc_sample_id(nfc)
-         # @passengers_rep = Passenger.find_all_by_timestamp(nfc)
-
-         if !@survey3.nil?
-           @survey3.each do |surv|
-             if Passenger.find_all_by_timestamp(nfc.timestamp).length == 0 #Para cuando se repita la survey con el mismo nfc_id, solo escribir una
-               if !surv.answer.nil?
-
-                 @passengers_number = @passengers_number + surv.answer.to_i
-                 @passengers = Passenger.new("timestamp" => nfc.timestamp,
-                                             "count" => @passengers_number,
-                                             "route_id" => id)
-                 @passengers.save!
-
-               end
-             end
-           end
-         end
-
-         #@survey.each do |surv| #Buscamos la survey con el id de la nfc para encontrar la respuesta
-         #  if surv.nfc_sample_id == nfc.id @passengers_number = @passengers_number + surv.answer.to_i
-         #    @passengers_number = @passengers_number + surv.answer.to_i
-         #  end
-         #end
-
-         #source_hash = {timestamp: nfc.timestamp, count: @passengers_number, route_id: @route.id}
-         #json_string = JSON.generate source_hash
-         #@array_temp << json_string
-       end
-
-       if nfc["message"]=="BAJADA" #Si el mensaje es bajada, entonces restamos la cantidad en answer al numero de pasajeros.
-         @survey3 = Survey.find_all_by_nfc_sample_id(nfc)
-         # @passengers_rep = Passenger.find_all_by_timestamp(nfc)
-
-         if !@survey3.nil?
-           @survey3.each do |surv|
-             if Passenger.find_all_by_timestamp(nfc.timestamp).length == 0 #Para cuando se repita la survey con el mismo nfc_id, solo escribir una
-               if !surv.answer.nil?
-
-                 @passengers_number = @passengers_number - surv.answer.to_i
-                 @passengers = Passenger.new("timestamp" => nfc.timestamp,
-                                             "count" => @passengers_number,
-                                             "route_id" => id)
-                 @passengers.save!
-
-               end
-             end
-           end
-         end
-
-       end
-
-     end
-   end
+    end
+  end
 
 
 end

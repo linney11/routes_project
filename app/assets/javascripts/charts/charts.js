@@ -1,14 +1,18 @@
 
 
-function drawVisualization(activities, container, array) {
-    var activitiesJSON = eval('(' + activities + ')');
+function drawVisualization(bus_size, container, array) {
+    //var activitiesJSON = eval('(' + activities + ')');
     var activitiesArray = eval('(' + array + ')');
+
+    var limit = eval('(' + bus_size + ')');
 
     //alert(array)
     //alert(activitiesArray)
 
-    var header = ['Hour'];
+    var header = ['Hour', 'bus_size'];
     var data = [[]];
+
+
 
     for (var user = 0; user < activitiesArray.length; user++) {
 
@@ -16,52 +20,40 @@ function drawVisualization(activities, container, array) {
 
         //alert(JSON[0].count)
 
-        header[header.length] = 'Route' + JSON[0].route_id;
-
-
-
-        //todo: hacer el techo de esta operacion
-//        var days = JSON.length / 24;
-//
-//        var sums = [];
-
-//        for (var i = 0; i < 24; i++) {
-//            sums[i] = 0;
-//        }
-
-//        for (var d = 0; d < days; d++){
-//            var offset = d * 24;
-//            for (var h = 0; h < 24; h++){
-//                sums[h] += JSON[offset + h].count;
-//            }
-//        }
+        header[header.length] = 'Sensed' + JSON[0].route_id;
 
         var time;
         var hour;
+        var minutes;
+        var minutes_string;
+        var seconds;
+
+        //var limit = 25
+
 
         for (var hs = 0; hs < JSON.length; hs++) {
             time = new Date(JSON[hs].timestamp);
             hour = time.getHours();
+            minutes = time.getMinutes();
+
+            if (minutes < 10){
+                minutes_string =  '0' + minutes
+            }
+            else{
+                minutes_string = minutes
+            }
+
+            seconds = time.getSeconds();
 //          data[hs + 1] = [(hour+hs) + ':00', 400000, 343440, 117120, 6000 , 1200, sums[hs] / days];
             if (user != 0) {
                 data[hs + 1][data[hs + 1].length] = JSON[hs].count;
             }
             else { //Si es dato de una sola serie (por ejemplo de 1 ruta)
-                data[hs + 1] = [(hour + hs) + ':00', JSON[hs].count];
+                data[hs + 1] = [hour + ':' + minutes_string, limit, JSON[hs].count];
             }
 
         }
 
-//        for (var hs = 0; hs < 24; hs++) {
-////          data[hs + 1] = [(hour+hs) + ':00', 400000, 343440, 117120, 6000 , 1200, sums[hs] / days];
-//            if (user != 0) { // Va concatenando el valor de cada serie a cada elemento del arreglo.
-//                data[hs + 1][data[hs + 1].length] = sums[hs] / days;
-//            }
-//            else { //Si es dato de una sola serie (por ejemplo de 1 ruta)
-//                data[hs + 1] = [(hour + hs) + ':00', sums[hs] / days];
-//            }
-//
-//        }
     }
 
     data[0] = header;
@@ -69,13 +61,31 @@ function drawVisualization(activities, container, array) {
     var data2 = google.visualization.arrayToDataTable(data);
 
     var options = {
-        title:'Average of activity Counts per Hour for Intensity Ranges',
-        vAxis:{title:"Activity Counts"},
-        hAxis:{title:"Hours"},
-        seriesType:"line", pointSize:5
+        title:'Number of passengers through time',
+        vAxis:{title:"Number of passengers", minValue: 0},
+        hAxis:{title:"Time"},
+        seriesType:"line", color: 'blue', pointSize:5,
         //series: {5: {type: "line", pointSize: 5, color: 'red'},4: {type: "line", pointSize: 5, color: 'blue'},3: {type: "line", pointSize: 5, color: 'yellow'}}
-//        series:{5:{type:"line", pointSize:5, color:'red'}}
+        series:{0:{type:"area", pointSize:0, color: '#CCCCFF'}}
     };
+
+//    var options = {
+//        title:'Number of passengers through time',
+//        vAxis:{title:"Number of passengers"},
+//        hAxis:{title:"Time"},
+//        seriesType:"area", color: '#DCDCDC', pointSize:0,
+//        //series: {5: {type: "line", pointSize: 5, color: 'red'},4: {type: "line", pointSize: 5, color: 'blue'},3: {type: "line", pointSize: 5, color: 'yellow'}}
+//        series:{1:{type:"line", pointSize:5, color: 'blue'}}
+//    };
+
+
+//    var options = {
+//        title : 'Monthly Coffee Production by Country',
+//        vAxis: {title: "Cups"},
+//        hAxis: {title: "Month"},
+//        seriesType: "area",
+//        series: {5: {type: "line", pointSize: 5, color: 'red'},4: {type: "line", pointSize: 5, color: 'blue'},3: {type: "line", pointSize: 5, color: 'yellow'}}
+//    };
 
     var chart = new google.visualization.ComboChart(document.getElementById('container'));
     chart.draw(data2, options);

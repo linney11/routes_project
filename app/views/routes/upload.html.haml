@@ -9,6 +9,7 @@
  = file_field_tag :file
  %input{:type => "hidden", :value=> @general_route.id, :name=>"id"}
  = submit_tag 'Upload'
+ %p= show_flash
 
 
 -if !@routes.nil?

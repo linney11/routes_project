@@ -5,7 +5,7 @@ var selectControl;
 var SHADOW_Z_INDEX = 10;
 var MARKER_Z_INDEX = 11;
 
-function initMap(locations) {
+function initMap(locations, gps_all) {
     map = new OpenLayers.Map("map");
     var mapnik = new OpenLayers.Layer.OSM();
     var bing = new OpenLayers.Layer.Bing({
@@ -26,6 +26,8 @@ function initMap(locations) {
     map.setCenter(position, zoom);
 
     var locationsJSON = eval('(' + locations + ')');
+
+    var gpsJSON = eval('(' + gps_all + ')');
 
     //todo: use reviver function?
 //    var locationsJSON = JSON.parse(locations, reviver);
@@ -98,8 +100,8 @@ function initMap(locations) {
     //// acomodar esto para agregar los puntos en una variable point
 
     var points = new Array();
-    for (var loc in locationsJSON) {
-        var locationPosition2 = new OpenLayers.LonLat(locationsJSON[loc].longitude, locationsJSON[loc].latitude).transform(fromProjection, toProjection);
+    for (var loc in gpsJSON) {
+        var locationPosition2 = new OpenLayers.LonLat(gpsJSON[loc].longitude, gpsJSON[loc].latitude).transform(fromProjection, toProjection);
         points.push(
             new OpenLayers.Geometry.Point(locationPosition2.lon, locationPosition2.lat)
         );

@@ -1,4 +1,6 @@
-%h1.title Input Route
+%header
+  %div#logo
+  %h1.title Create a new route
 
 = form_tag general_route_index_path, :method => :post do
 
@@ -12,4 +14,4 @@
   = submit_tag 'Save Changes'
 
 %p
-= link_to 'Back to location list', general_route_index_path
+= link_to 'Back to route list', general_route_index_path

@@ -5,7 +5,9 @@ var selectControl;
 var SHADOW_Z_INDEX = 10;
 var MARKER_Z_INDEX = 11;
 
-function initMap(locations1) {
+function initMap(locations1,color) {
+    var c = color.split(",")
+    var c1;
     map = new OpenLayers.Map("map");
     var mapnik = new OpenLayers.Layer.OSM();
     var bing = new OpenLayers.Layer.Bing({
@@ -118,10 +120,14 @@ function initMap(locations1) {
       //  new OpenLayers.Geometry.Point(lon2, lat2)
     //);
 
-    var line = new OpenLayers.Geometry.LineString(points);
+    var line =   new OpenLayers.Geometry.LineString(points);
+    c1=c[i].replace("\"","")
+    c1='#'+c1.replace("\"","")
+    c1=c1.replace(" ","")
 
     var style = {
-        strokeColor:get_random_color(),
+
+        strokeColor:c1,
         strokeOpacity: 1,
         strokeWidth: 5
     };

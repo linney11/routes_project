@@ -10,30 +10,37 @@
 
 %section#middle
 
- %p=@general_route.name
- %p=@id.name
+ %h2="Route Name: " + @general_route.name
+ %h3=@id.name
+ %h4= "Route Duration: " + @duration
  %p= link_to 'Back to route: '+@general_route.name, general_route_path(@general_route)
 
  .map
   %div#map
-  %input#gps{:type => "hidden", :value => @gps.to_json}
+  %input#gps{:type => "hidden", :value => @gps_array2.to_json}
+  %input#gps_all{:type => "hidden", :value => @gps_all.to_json}
 
 .container
  %div#container
  %input#passengers{:type => "hidden", :value => @passengers.to_json}
 
  %input#array{:type => "hidden", :value => @array}
+ %input#bus_size{:type => "hidden", :value => @bus_size}
 
-%h2.title Route Name: #{@id.name}
-
-
+-#%p=@duration
+-#
+-#%p=@gps
+-#
+-#%p=@gps_array
+-#
+-#%p=@gps_array2
 
 = javascript_include_tag '/assets/maps/OpenLayers'
 = javascript_include_tag '/assets/maps/locations'
 = javascript_include_tag '/assets/charts/charts'
 
 :javascript
-  initMap($("#gps").val());
-  drawVisualization($("#passengers").val(),$("#container").val(),$("#array").val());
+  initMap($("#gps").val(),$("#gps_all").val());
+  drawVisualization($("#bus_size").val(),$("#container").val(),$("#array").val());
 
 

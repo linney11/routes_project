@@ -1,5 +1,6 @@
-
-%h1.title All Routes
+%header
+  %div#logo
+  %h1.title All existing routes
 
 %table#table
   %thead
@@ -18,6 +19,8 @@
         %td= link_to "Upload File", routes_upload_path(:id=> route.id)
         %td= link_to "Edit", edit_general_route_path(route)
         %td= link_to "Delete", general_route_path(route), :method => :delete, :confirm => 'Are you sure?'
+
+%p= show_flash
 
 %p=link_to "Create new Route", new_general_route_path
 

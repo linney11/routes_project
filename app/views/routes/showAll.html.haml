@@ -1,13 +1,32 @@
 %header
  %div#logo
- %h1.title Show Route
-
+ %h1.title Show Routes
 
 %section#middle
- %p
- -@ids.each do|id|
-  =Route.find(id).name
+ %h2=@general_route.name
 
+ %table#tableAll
+  %thead
+   %tr
+    %th.a
+    %th Name
+    %th Max. Passengers
+    %th Time
+    %th Route Duration
+
+   %tbody
+   - @ids.each_with_index do |r, idx|
+    -a="#"+@c[idx]
+    %tr
+     %td.a{:bgcolor => a }
+     %td=Route.find(r).name
+     %td=@x[idx].count
+     %td=Time.at(@x[idx].timestamp.to_s[0..9].to_i).strftime("%H:%M:%S")
+     %td=@duration[idx]
+
+
+
+ %p= link_to 'Back to route: '+@general_route.name, general_route_path(@general_route)
 
  -#%p=@general_route.name
  -#%p=@id.name
@@ -16,10 +35,13 @@
  .map
   %div#map
   %input#gps{:type => "hidden", :value => @gps.to_json}
+  %input#color{:type => "hidden", :value => @color}
 
 
 = javascript_include_tag '/assets/maps/OpenLayers'
 = javascript_include_tag '/assets/maps/locations1'
+= javascript_include_tag 'http://code.highcharts.com/stock/highstock.js'
+= javascript_include_tag 'http://code.highcharts.com/stock/modules/exporting.js'
 :javascript
-  initMap($("#gps").val());
+  initMap($("#gps").val(),$("#color").val());
 

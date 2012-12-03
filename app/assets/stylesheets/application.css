@@ -37,6 +37,7 @@ header{
     padding:0px;
 }
 
+
 header h1{
     font-weight: bold;
     font-size: 50px;
@@ -60,8 +61,6 @@ form{
     float: left;
     width: 150px;
     height: 130px;
-
-
 }
 
 table#table{
@@ -75,16 +74,19 @@ section#mitad{
 }
 
 div#map {
-    width: 95%;
+    width: 45%;
     height:70%;
     height: 500px;
-
+    float: left;
+    margin-left: 15px;
 }
 
 div#container{
-    min-width:400px;
-    height: 400px;
-    margin: 0 auto;
+
+    width:45%;
+    height: 500px;
+    float:right;
+    margin-right: 15px;
 }
 
 form label {
@@ -121,6 +123,21 @@ table#table th {
 table#table th, table#table td {
     padding: 4px;
     text-align: left;
+}
+
+table#tableAll{
+    width:50%;
+    float:right;
+}
+
+table#tableAll th, table#table td {
+    padding: 4px;
+    text-align: left;
+}
+
+
+.a{
+    width: 20px
 }
 
 
